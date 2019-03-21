@@ -79,7 +79,6 @@
                  * peer object.
                  */
 				 
-				 join();
 				 
                 function initialize() {
                     // Create own peer object with connection to shared PeerJS server
@@ -119,6 +118,8 @@
                         console.log(err);
                         alert('' + err);
                     });
+					
+					join();
                 };
 
                 /**
