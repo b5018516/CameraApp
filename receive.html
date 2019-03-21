@@ -158,18 +158,12 @@
                         start(true);
                     });
 					
-					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-					conn.on('call', function(call) {
-						call.answer(stream); // Answer the call with an A/V stream.
-						call.on('stream', function(remoteStream) {
-							localVideo.srcObject = remoteStream;						
-						}); 
-						
-					  getUserMedia({video: true, audio: true}, function(stream) {
-						
-					  }, function(err) {
-						console.log('Failed to get local stream' ,err);
-					  });
+					peer.on('call', function(id, remoteStream) {
+						localVideo.srcObject = remoteStream;						
+
+						//call.answer(stream); // Answer the call with an A/V stream.
+						//call.on('stream', function(remoteStream) {
+						//}); 			
 					});	
 					
                 }
