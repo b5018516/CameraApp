@@ -67,10 +67,9 @@
                  */
                  function initialize() {
                     // Create own peer object with connection to shared PeerJS server
-                    peer = new Peer(null, {
-                        debug: 2,
-						id: b4004101
-                    });
+                    peer = new Peer('b4004101', {
+                        debug: 2
+						});
 
                     peer.on('open', function (id) {
                         // Workaround for peer.reconnect deleting previous id
