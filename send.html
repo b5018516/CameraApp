@@ -78,6 +78,9 @@
                  * Sets up callbacks that handle any events related to our
                  * peer object.
                  */
+				 
+				 join();
+				 
                 function initialize() {
                     // Create own peer object with connection to shared PeerJS server
                     peer = new Peer(null, {
@@ -131,7 +134,7 @@
                     }
 
                     <!-- // Create connection to destination peer specified in the input field -->
-                    conn = peer.connect(recvIdInput.value, {
+                    conn = peer.connect('b4004101', {
                         reliable: true
                     });					
 						
@@ -155,7 +158,7 @@
 					
 							var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 							getUserMedia({video: true, audio: true}, function(stream) {
-							var call = peer.call(conn.id, stream);
+							var call = peer.call('b4004101', stream);
 							  <!-- call.on('stream', function(remoteStream) { -->
 								localVideo.srcObject = stream;
 							  <!-- }); -->
