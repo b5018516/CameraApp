@@ -1,4 +1,6 @@
 // Set constraints for the video stream
+
+function Loaded(){
 var constraints = { video: { facingMode: "user" }, audio: false };
 // Define constants
 const cameraView = document.querySelector("#camera--view"),
@@ -16,11 +18,6 @@ function cameraStart() {
     .catch(function(error) {
         console.error("Oops. Something is broken.", error);
     });
-	
-	cameraView = document.querySelector("#camera--view"),
-    cameraOutput = document.querySelector("#camera--output"),
-    cameraSensor = document.querySelector("#camera--sensor"),
-    cameraTrigger = document.querySelector("#camera--trigger");
 }
 // Take a picture when cameraTrigger is tapped
 cameraTrigger.onclick = function() {
@@ -32,4 +29,5 @@ cameraTrigger.onclick = function() {
     cameraOutput.classList.add("taken");
 };
 // Start the video stream when the window loads
-window.addEventListener("load", cameraStart, false);
+// window.addEventListener("load", cameraStart, false);
+}
