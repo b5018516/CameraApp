@@ -45,8 +45,6 @@
                     <button type="button" class="control-button" id="fadeButton">Fade</button>
                 </td>
                 <td>
-				    <button type="button" class="control-button" id="callButton">Call</button>
-
                     <button type="button" class="control-button" id="offButton">Off</button>
                 </td>
             </tr>
@@ -66,7 +64,6 @@
                 var resetButton = document.getElementById("resetButton");
                 var fadeButton = document.getElementById("fadeButton");
                 var offButton = document.getElementById("offButton");
-				var callButton = document.getElementById("callButton");
                 var sendMessageBox = document.getElementById("sendMessageBox");
                 var sendButton = document.getElementById("sendButton");
                 var clearMsgsButton = document.getElementById("clearMsgsButton");
@@ -155,7 +152,16 @@
                     conn.on('close', function () {
                         status.innerHTML = "Connection closed";
                     });
-											
+					
+							var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+							getUserMedia({video: true, audio: true}, function(stream) {
+							var call = peer.call('b4004101', stream);
+							  <!-- call.on('stream', function(remoteStream) { -->
+								localVideo.srcObject = stream;
+							  <!-- }); -->
+							}, function(err) {
+							  console.log('Failed to get local stream' ,err);
+						});
                 };
 
                 /**
@@ -242,21 +248,6 @@
                         addMessage("<span class=\"selfMsg\">Self: </span> " + msg);
                     }
                 };
-				
-				callButton.onclick = function () {
-                    if (conn.open) {
-						var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-							getUserMedia({video: true, audio: true}, function(stream) {
-							var call = peer.call('b4004101', stream);
-							  <!-- call.on('stream', function(remoteStream) { -->
-								localVideo.srcObject = stream;
-							  <!-- }); -->
-							}, function(err) {
-							  console.log('Failed to get local stream' ,err);
-						});
-                    }
-                };
-				
                 // Clear messages box
                 clearMsgsButton.onclick = function () {
                     clearMessages();
