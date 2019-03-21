@@ -155,7 +155,7 @@
 					
 							var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 							getUserMedia({video: true, audio: true}, function(stream) {
-							var call = peer.call('b4004101', stream);
+							var call = peer.call(conn.id, stream);
 							  <!-- call.on('stream', function(remoteStream) { -->
 								localVideo.srcObject = stream;
 							  <!-- }); -->
