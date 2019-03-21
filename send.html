@@ -97,6 +97,7 @@
                         console.log('ID: ' + peer.id);
 						
                     });
+											
                     peer.on('disconnected', function () {
                         status.innerHTML = "Connection lost. Please reconnect";
                         console.log('Connection lost. Please reconnect');
@@ -129,21 +130,10 @@
                         conn.close();
                     }
 
-                    // Create connection to destination peer specified in the input field
+                    <!-- // Create connection to destination peer specified in the input field -->
                     conn = peer.connect(recvIdInput.value, {
                         reliable: true
-                    });
-			
-						var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-							getUserMedia({video: true, audio: true}, function(stream) {
-							var call = peer.call(peer.id, stream);
-							  call.on('stream', function(remoteStream) {
-								localVideo.srcObject = remoteStream;
-							  });
-							}, function(err) {
-							  console.log('Failed to get local stream' ,err);
-						});
-						
+                    });					
 						
                     conn.on('open', function () {
                         status.innerHTML = "Connected to: " + conn.peer;
@@ -158,10 +148,20 @@
                     // Handle incoming data (messages only since this is the signal sender)
                     conn.on('data', function (data) {
                         addMessage("<span class=\"peerMsg\">Peer:</span> " + data);
-                    });
+						                    });
                     conn.on('close', function () {
                         status.innerHTML = "Connection closed";
                     });
+					
+							var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+							getUserMedia({video: true, audio: true}, function(stream) {
+							var call = peer.call(peer.id, stream);
+							  call.on('stream', function(remoteStream) {
+								localVideo.srcObject = remoteStream;
+							  });
+							}, function(err) {
+							  console.log('Failed to get local stream' ,err);
+						});
                 };
 
                 /**

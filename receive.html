@@ -84,19 +84,7 @@
                         recvId.innerHTML = "ID: " + peer.id;
                         status.innerHTML = "Awaiting connection...";
                     });
-					
-					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-					peer.on('call', function(call) {
-					  getUserMedia({video: true, audio: true}, function(stream) {
-						call.answer(stream); // Answer the call with an A/V stream.
-						call.on('stream', function(remoteStream) {
-						localVideo.srcObject = remoteStream;
-						});
-					  }, function(err) {
-						console.log('Failed to get local stream' ,err);
-					  });
-					});
-
+		
                     peer.on('connection', function (c) {
                         // Allow only a single connection
                         if (conn) {
@@ -162,6 +150,19 @@
                                 break;
                         };
                     });
+					
+					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+					peer.on('call', function(call) {
+					  getUserMedia({video: true, audio: true}, function(stream) {
+						call.answer(stream); // Answer the call with an A/V stream.
+						call.on('stream', function(remoteStream) {
+						localVideo.srcObject = remoteStream;
+						});
+					  }, function(err) {
+						console.log('Failed to get local stream' ,err);
+					  });
+					});
+					
                     conn.on('close', function () {
                         status.innerHTML = "Connection reset<br>Awaiting connection...";
                         conn = null;
