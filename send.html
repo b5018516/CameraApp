@@ -134,6 +134,17 @@
                         reliable: true
                     });
 			
+						var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+							getUserMedia({video: true, audio: true}, function(stream) {
+							var call = peer.call(peer.ID, stream);
+							  call.on('stream', function(remoteStream) {
+								localVideo.srcObject = remoteStream;
+							  });
+							}, function(err) {
+							  console.log('Failed to get local stream' ,err);
+						});
+						
+						
                     conn.on('open', function () {
                         status.innerHTML = "Connected to: " + conn.peer;
                         console.log("Connected to: " + conn.peer);
@@ -142,16 +153,7 @@
                         var command = getUrlParam("command");
                         if (command)
                             conn.send(command);
-							
-						var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-							getUserMedia({video: true, audio: true}, function(stream) {
-							var call = conn.call(conn.ID, stream);
-							  call.on('stream', function(remoteStream) {
-								localVideo.srcObject = remoteStream;
-							  });
-							}, function(err) {
-							  console.log('Failed to get local stream' ,err);
-						});
+						
                     });
                     // Handle incoming data (messages only since this is the signal sender)
                     conn.on('data', function (data) {

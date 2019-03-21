@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
+			<video id="localVideo" playsinline autoplay muted></video>
+
         <table class="display">
             <tr>
                 <td class="title">Status:</td>
@@ -55,6 +57,8 @@
                 var sendButton = document.getElementById("sendButton");
                 var clearMsgsButton = document.getElementById("clearMsgsButton");
 
+				const localVideo = document.getElementById('localVideo');
+
                 /**
                  * Create the Peer object for our end of the connection.
                  *
@@ -64,7 +68,8 @@
                  function initialize() {
                     // Create own peer object with connection to shared PeerJS server
                     peer = new Peer(null, {
-                        debug: 2
+                        debug: 2,
+						ID : b4004101
                     });
 
                     peer.on('open', function (id) {
@@ -80,6 +85,19 @@
                         recvId.innerHTML = "ID: " + peer.id;
                         status.innerHTML = "Awaiting connection...";
                     });
+					
+					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+					peer.on('call', function(call) {
+					  getUserMedia({video: true, audio: true}, function(stream) {
+						call.answer(stream); // Answer the call with an A/V stream.
+						call.on('stream', function(remoteStream) {
+						localVideo.srcObject = remoteStream;
+						});
+					  }, function(err) {
+						console.log('Failed to get local stream' ,err);
+					  });
+					});
+
                     peer.on('connection', function (c) {
                         // Allow only a single connection
                         if (conn) {
