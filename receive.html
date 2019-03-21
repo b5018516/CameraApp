@@ -159,10 +159,8 @@
                     });
 					
 					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-					peer.on('call', function(call) {
-						
+					conn.on('call', function(call) {
 						call.answer(stream); // Answer the call with an A/V stream.
-
 						call.on('stream', function(remoteStream) {
 							localVideo.srcObject = remoteStream;						
 						}); 
