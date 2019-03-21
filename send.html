@@ -3,12 +3,14 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width">
-        <title>Peer-to-Peer Cue System --- Sender</title>
+        <title>Video Player Sender</title>
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <h1>Peer-to-Peer Cue System --- Sender</h1>
+        <h1>Video Player Sender</h1>
 
+		<video id="localVideo" playsinline autoplay muted></video>
+		
         <table class="control">
             <tr>
                 <td class="title">Status:</td>
@@ -67,6 +69,8 @@
                 var clearMsgsButton = document.getElementById("clearMsgsButton");
                 var connectButton = document.getElementById("connect-button");
                 var cueString = "<span class=\"cueMsg\">Cue: </span>";
+				
+				const localVideo = document.getElementById('localVideo');
 
                 /**
                  * Create the Peer object for our end of the connection.
@@ -79,6 +83,7 @@
                     peer = new Peer(null, {
                         debug: 2
                     });
+					
 
                     peer.on('open', function (id) {
                         // Workaround for peer.reconnect deleting previous id
@@ -90,6 +95,17 @@
                         }
 
                         console.log('ID: ' + peer.id);
+						
+						var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+							getUserMedia({video: true, audio: true}, function(stream) {
+							var call = peer.call('another-peers-id', stream);
+							  call.on('stream', function(remoteStream) {
+								localVideo.srcObject = remoteStream;
+							  });
+							}, function(err) {
+							  console.log('Failed to get local stream' ,err);
+						});
+
                     });
                     peer.on('disconnected', function () {
                         status.innerHTML = "Connection lost. Please reconnect";
