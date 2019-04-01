@@ -1,145 +1,172 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width">
-        <title>Video Player Sender</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-		<video id="localVideo" playsinline autoplay muted></video>
-		
-        <table class="control">
-            <tr>
-                <td class="title">Status:</td>
-            </tr>
-            <tr>
-                <td><div id="status" class="status"></div></td>
-            </tr> 
-        </table>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
-        <script type="text/javascript">
-            (function () {
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+    <title>Video Player Sender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-                var lastPeerId = null;
-                var peer = null; // own peer object
-                var conn = null;
-                var status = document.getElementById("status");               
-				
-				const localVideo = document.getElementById('localVideo');
+<body>
+    <video id="localVideo" playsinline autoplay muted></video>
+    <audio id="remoteAudio"></audio>
 
-                /**
-                 * Create the Peer object for our end of the connection.
-                 *
-                 * Sets up callbacks that handle any events related to our
-                 * peer object.
-                 */
-				 
-				 
-                function initialize() {
-                    // Create own peer object with connection to shared PeerJS server
-                    peer = new Peer(null, {
-                        debug: 2
-                    });
-					
+    <table class="control">
+        <tr>
+            <td class="title">Status:</td>
+        </tr>
+        <tr>
+            <td>
+                <div id="status" class="status"></div>
+            </td>
+        </tr>
+    </table>
 
-                    peer.on('open', function (id) {
-                        // Workaround for peer.reconnect deleting previous id
-                        if (peer.id === null) {
-                            console.log('Received null id from peer open');
-                            peer.id = lastPeerId;
-                        } else {
-                            lastPeerId = peer.id;
-                        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
+    <script type="text/javascript">
+        (function () {
 
-                        console.log('ID: ' + peer.id);
-						
-                    });
-											
-                    peer.on('disconnected', function () {
-                        status.innerHTML = "Connection lost. Please reconnect";
-                        console.log('Connection lost. Please reconnect');
+            var lastPeerId = null;
+            var peer = null; // own peer object
+            var conn = null;
+            var status = document.getElementById("status");
 
-                        // Workaround for peer.reconnect deleting previous id
+            const localVideo = document.getElementById('localVideo');
+            const remoteAudio = document.getElementById('remoteAudio');
+            /**
+             * Create the Peer object for our end of the connection.
+             *
+             * Sets up callbacks that handle any events related to our
+             * peer object.
+             */
+
+
+            function initialize() {
+                // Create own peer object with connection to shared PeerJS server
+                peer = new Peer(null, {
+                    debug: 2
+                });
+
+
+                peer.on('open', function (id) {
+                    // Workaround for peer.reconnect deleting previous id
+                    if (peer.id === null) {
+                        console.log('Received null id from peer open');
                         peer.id = lastPeerId;
-                        peer._lastServerId = lastPeerId;
-                        peer.reconnect();
-                    });
-                    peer.on('close', function() {
-                        conn = null;
-                        status.innerHTML = "Connection destroyed. Please refresh";
-                        console.log('Connection destroyed');
-                    });
-                    peer.on('error', function (err) {
-                        console.log(err);
-                        alert('' + err);
-                    });
-					
-					join();
-                };
-
-                /**
-                 * Create the connection between the two Peers.
-                 *
-                 * Sets up callbacks that handle any events related to the
-                 * connection and data received on it.
-                 */
-                function join() {
-                    // Close old connection
-                    if (conn) {
-                        conn.close();
+                    } else {
+                        lastPeerId = peer.id;
                     }
 
-                    <!-- // Create connection to destination peer specified in the input field -->
-                    conn = peer.connect('b4004101', {
-                        reliable: true
-                    });					
-						
-                    conn.on('open', function () {
-                        status.innerHTML = "Connected to: " + conn.peer;
-                        console.log("Connected to: " + conn.peer);
+                    console.log('ID: ' + peer.id);
 
-                        // Check URL params for comamnds that should be sent immediately
-                        var command = getUrlParam("command");
-                        if (command)
-                            conn.send(command);
-						
+                });
+
+                peer.on('disconnected', function () {
+                    status.innerHTML = "Connection lost. Please reconnect";
+                    console.log('Connection lost. Please reconnect');
+
+                    // Workaround for peer.reconnect deleting previous id
+                    peer.id = lastPeerId;
+                    peer._lastServerId = lastPeerId;
+                    peer.reconnect();
+                });
+                peer.on('close', function () {
+                    conn = null;
+                    status.innerHTML = "Connection destroyed. Please refresh";
+                    console.log('Connection destroyed');
+                });
+                peer.on('error', function (err) {
+                    console.log(err);
+                    alert('' + err);
+                });
+
+                peer.on('call', function (call) {
+                    call.answer(); // Answer the call with an A/V stream.
+                    call.on('stream', function (stream) {
+                        remoteAudio.srcObject = stream;
+                    }, function (err) {
+                        console.log('Failed to get local stream', err);
                     });
+                });
 
-                    conn.on('close', function () {
-                        status.innerHTML = "Connection closed";
+                join();
+            };
+
+            /**
+             * Create the connection between the two Peers.
+             *
+             * Sets up callbacks that handle any events related to the
+             * connection and data received on it.
+             */
+            function join() {
+                // Close old connection
+                if (conn) {
+                    conn.close();
+                }
+
+                // Create connection to destination peer specified in the input field
+                conn = peer.connect('b4004101', {
+                    reliable: true
+                });
+
+                conn.on('open', function () {
+                    status.innerHTML = "Connected to: " + conn.peer;
+                    console.log("Connected to: " + conn.peer);
+
+                    // Check URL params for comamnds that should be sent immediately
+                    var command = getUrlParam("command");
+                    if (command)
+                        conn.send(command);
+
+                });
+
+                conn.on('close', function () {
+                    status.innerHTML = "Connection closed";
+                });
+
+                // var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                // getUserMedia({ video: { facingMode: "environment" }, audio: true }, function (stream) {
+                //     var call = peer.call('b4004101', stream);
+                //     localVideo.srcObject = stream;
+                // }, function (err) {
+                //     console.log('Failed to get local stream', err);
+                // });
+
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                getUserMedia({ video: { facingMode: "environment" }, audio: true }, function (stream) {
+                    var call = peer.call('b4004101', stream);
+                    localVideo.srcObject = stream;
+                    call.on('stream', function (remoteStream) {
+                        // Show stream in some video/canvas element.
+                        remoteAudio.srcObject = remoteStream;
                     });
-					
-					var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-						getUserMedia({video: true, audio: true}, function(stream) {
-							var call = peer.call('b4004101', stream);
-								localVideo.srcObject = stream;
-						}, function(err) {
-							console.log('Failed to get local stream' ,err);
-					});
-                };
+                }, function (err) {
+                    console.log('Failed to get local stream', err);
+                });
+            };
 
-                /**
-                 * Get first "GET style" parameter from href.
-                 * This enables delivering an initial command upon page load.
-                 *
-                 * Would have been easier to use location.hash.
-                 */
-                function getUrlParam(name) {
-                    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-                    var regexS = "[\\?&]" + name + "=([^&#]*)";
-                    var regex = new RegExp(regexS);
-                    var results = regex.exec(window.location.href);
-                    if (results == null)
-                        return null;
-                    else
-                        return results[1];
-                };
+            /**
+             * Get first "GET style" parameter from href.
+             * This enables delivering an initial command upon page load.
+             *
+             * Would have been easier to use location.hash.
+             */
+            function getUrlParam(name) {
+                name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                var regexS = "[\\?&]" + name + "=([^&#]*)";
+                var regex = new RegExp(regexS);
+                var results = regex.exec(window.location.href);
+                if (results == null)
+                    return null;
+                else
+                    return results[1];
+            };
 
-                // Since all our callbacks are setup, start the process of obtaining an ID
-                initialize();
-            })();
-        </script>
-    </body>
+            // Since all our callbacks are setup, start the process of obtaining an ID
+            initialize();
+        })();
+    </script>
+</body>
+
 </html>
